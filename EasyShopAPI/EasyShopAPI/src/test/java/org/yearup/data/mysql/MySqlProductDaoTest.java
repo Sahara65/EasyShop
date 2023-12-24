@@ -10,23 +10,19 @@ import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class MySqlProductDaoTest extends BaseDaoTestClass
-{
+class MySqlProductDaoTest extends BaseDaoTestClass {
     private MySqlProductDao dao;
 
     @BeforeEach
-    public void setup()
-    {
+    public void setup() {
         dao = new MySqlProductDao(dataSource);
     }
 
     @Test
-    public void getById_shouldReturn_theCorrectProduct()
-    {
+    public void getById_shouldReturn_theCorrectProduct() {
         // arrange
         int productId = 1;
-        Product expected = new Product()
-        {{
+        Product expected = new Product() {{
             setProductId(1);
             setName("Smartphone");
             setPrice(new BigDecimal("499.99"));
