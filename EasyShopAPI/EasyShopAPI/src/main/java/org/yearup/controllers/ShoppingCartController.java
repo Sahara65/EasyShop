@@ -34,6 +34,8 @@ public class ShoppingCartController {
     }
 
     // each method in this controller requires a Principal object as a parameter
+    @RequestMapping("/products")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ShoppingCart getCart(Principal principal) {
         try {
             // get the currently logged in username
@@ -51,6 +53,7 @@ public class ShoppingCartController {
 
     // add a POST method to add a product to the cart - the url should be
     // https://localhost:8080/cart/products/15 (15 is the productId to be added
+
 
 
     // add a PUT method to update an existing product in the cart - the url should be

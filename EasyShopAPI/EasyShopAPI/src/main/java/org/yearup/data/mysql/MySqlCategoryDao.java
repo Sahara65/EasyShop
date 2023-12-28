@@ -5,9 +5,14 @@ import org.yearup.data.CategoryDao;
 import org.yearup.models.Category;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.yearup.data.mysql.MySqlProductDao.mapRow;
 
 @Component
 public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
@@ -17,15 +22,35 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
 
     @Override
     public List<Category> getAllCategories() {
+        List<Category> categories = new ArrayList<>();
         // get all categories
-        return null;
+        try {
+            Connection connection = getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM categories");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                categories.add(mapRow(resultSet));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return categories;
     }
 
     @Override
     public Category getById(int categoryId) {
-
         // get category by id
-        return null;
+        try {
+            Connection connection = getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM categories WHERE category_id = ?");
+            preparedStatement.setInt(1, categoryId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return mapRow(resultSet);
+            } else return null;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
