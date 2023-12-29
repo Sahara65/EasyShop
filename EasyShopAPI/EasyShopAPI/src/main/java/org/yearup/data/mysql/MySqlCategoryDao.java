@@ -12,8 +12,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.yearup.data.mysql.MySqlProductDao.mapRow;
-
 @Component
 public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
     public MySqlCategoryDao(DataSource dataSource) {
@@ -69,10 +67,11 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
             preparedStatement.setString(2, category.getDescription());
             preparedStatement.executeUpdate();
 
+            return category;
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return category;
     }
 
     @Override
@@ -117,5 +116,4 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
             setDescription(description);
         }};
     }
-
 }

@@ -3,9 +3,7 @@ package org.yearup.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.yearup.data.ProductDao;
 import org.yearup.data.ShoppingCartDao;
@@ -21,6 +19,7 @@ import java.security.Principal;
 @CrossOrigin
 @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
 public class ShoppingCartController {
+
     // a shopping cart requires
     private ShoppingCartDao shoppingCartDao;
     private final UserDao userDao;
@@ -40,12 +39,14 @@ public class ShoppingCartController {
         try {
             // get the currently logged in username
             String userName = principal.getName();
+
             // find database user by userId
             User user = userDao.getByUserName(userName);
             int userId = user.getId();
 
             // use the shoppingcartDao to get all items in the cart and return the cart
             return null;
+
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
         }
@@ -53,15 +54,30 @@ public class ShoppingCartController {
 
     // add a POST method to add a product to the cart - the url should be
     // https://localhost:8080/cart/products/15 (15 is the productId to be added
+    @PostMapping("/products/{productId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ShoppingCart addProductToCart(Principal principal, @PathVariable int productId) {
+
+    }
 
 
 
     // add a PUT method to update an existing product in the cart - the url should be
     // https://localhost:8080/cart/products/15 (15 is the productId to be updated)
     // the BODY should be a ShoppingCartItem - quantity is the only value that will be updated
+    @PutMapping("/products/{productId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ShoppingCart updateProductInCart(Principal principal, @PathVariable int productId) {
 
+    }
 
     // add a DELETE method to clear all products from the current users cart
     // https://localhost:8080/cart
+    @DeleteMapping("/cart")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public void clearCart(Principal principal) {
+
+    }
+
 
 }
