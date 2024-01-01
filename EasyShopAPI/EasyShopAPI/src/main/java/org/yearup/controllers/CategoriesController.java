@@ -40,14 +40,14 @@ public class CategoriesController {
     }
 
     @GetMapping("{categoryId}/products")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("permitAll()")
     public List<Product> getProductsById(@PathVariable int categoryId) {
 
         return productDao.listByCategoryId(categoryId);
     }
 
     @PostMapping()
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Category addCategory(@RequestBody Category category) {
 
         return categoryDao.create(category);
@@ -61,7 +61,7 @@ public class CategoriesController {
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deleteCategory(@PathVariable int id) {
 
         categoryDao.delete(id);

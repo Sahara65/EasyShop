@@ -20,10 +20,9 @@ import java.security.Principal;
 @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
 public class ShoppingCartController {
 
-    // a shopping cart requires
-    private ShoppingCartDao shoppingCartDao;
+    private final ShoppingCartDao shoppingCartDao;
     private final UserDao userDao;
-    private ProductDao productDao;
+    private final ProductDao productDao;
 
     @Autowired
     public ShoppingCartController(ShoppingCartDao shoppingCartDao, UserDao userDao, ProductDao productDao) {
@@ -32,20 +31,17 @@ public class ShoppingCartController {
         this.productDao = productDao;
     }
 
-    // each method in this controller requires a Principal object as a parameter
     @RequestMapping("/products")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ShoppingCart getCart(Principal principal) {
-        try {
-            // get the currently logged in username
-            String userName = principal.getName();
 
-            // find database user by userId
+        try {
+
+            String userName = principal.getName();
             User user = userDao.getByUserName(userName);
             int userId = user.getId();
 
-            // use the shoppingcartDao to get all items in the cart and return the cart
-            return null;
+            return shoppingCartDao.getByUserId(userId);
 
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
@@ -57,6 +53,18 @@ public class ShoppingCartController {
     @PostMapping("/products/{productId}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ShoppingCart addProductToCart(Principal principal, @PathVariable int productId) {
+        try {
+
+            String userName = principal.getName();
+            User user = userDao.getByUserName(userName);
+            int userId = user.getId();
+
+        // TODO - Update this return
+            return null;
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+        }
 
     }
 
@@ -68,7 +76,17 @@ public class ShoppingCartController {
     @PutMapping("/products/{productId}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ShoppingCart updateProductInCart(Principal principal, @PathVariable int productId) {
+        try {
+            String userName = principal.getName();
+            User user = userDao.getByUserName(userName);
+            int userId = user.getId();
 
+            // TODO - Update this return
+            return null;
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+        }
     }
 
     // add a DELETE method to clear all products from the current users cart
@@ -76,8 +94,15 @@ public class ShoppingCartController {
     @DeleteMapping("/cart")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public void clearCart(Principal principal) {
+        try {
+            String userName = principal.getName();
+            User user = userDao.getByUserName(userName);
+            int userId = user.getId();
 
+
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+        }
     }
-
-
 }
