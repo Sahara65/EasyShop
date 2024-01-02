@@ -62,12 +62,15 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao {
 
         try (Connection connection = getConnection()) {
 
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO categories (name, description) VALUES (?, ?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO categories (name, description) VALUES (?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, category.getName());
             preparedStatement.setString(2, category.getDescription());
             preparedStatement.executeUpdate();
 
-            return category;
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            resultSet.next();
+
+            return new Category(resultSet.getInt(1), category.getName(), category.getDescription());
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
