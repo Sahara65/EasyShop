@@ -1,11 +1,13 @@
-//package org.yearup.data;
+package org.yearup.data;
 
-//import org.yearup.models.ShoppingCart;
+import org.yearup.models.ShoppingCart;
+import org.yearup.models.ShoppingCartItem;
 
-//public interface ShoppingCartDao {
-//    ShoppingCart getByUserId(int userId);
-//    ShoppingCart addProductToCart(int productId, int userId);
-//    void updateProductInCart(int productId, int userId, int quantity);
-//    ShoppingCart removeProductFromCart(int productId, int userId);
-//    void clearCart(int userId);
-//}
+public interface ShoppingCartDao {
+    ShoppingCart getByUserId(int userId);
+
+    void addProductToCart(int userId, ShoppingCartItem item);
+    void removeProductFromCart(int productId, int userId);
+    void updateProductQuantity(int productId, int userId, int quantity);
+    void clearCart(int userId);
+}

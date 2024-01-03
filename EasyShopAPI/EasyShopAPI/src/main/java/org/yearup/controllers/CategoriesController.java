@@ -56,12 +56,6 @@ public class CategoriesController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Category addCategory(@RequestBody Category category) {
 
-        try {
-            return categoryDao.create(category);
-
-        } catch (Exception e) {
-            throwInternalServerErrorResponse();
-        }
         return categoryDao.create(category);
     }
 
