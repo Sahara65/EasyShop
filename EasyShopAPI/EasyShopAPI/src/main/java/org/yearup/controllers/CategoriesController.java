@@ -39,9 +39,8 @@ public class CategoriesController {
 
         Category category = categoryDao.getById(id);
 
-        if (category == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error!! Category not found. Please try again.");
-        }
+        validateCategory(category);
+
         return category;
     }
 
@@ -53,6 +52,7 @@ public class CategoriesController {
     }
 
     @PostMapping()
+    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Category addCategory(@RequestBody Category category) {
 
@@ -60,8 +60,9 @@ public class CategoriesController {
             return categoryDao.create(category);
 
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad. Please try again.");
+            throwInternalServerErrorResponse();
         }
+        return categoryDao.create(category);
     }
 
     @PutMapping("{id}")
@@ -72,7 +73,7 @@ public class CategoriesController {
             categoryDao.update(id, category);
 
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+            throwInternalServerErrorResponse();
         }
     }
 
@@ -87,11 +88,20 @@ public class CategoriesController {
             categoryDao.delete(id);
 
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+            throwInternalServerErrorResponse();
         }
+        validateCategory(category);
+    }
 
+    private void validateCategory(Category category) {
         if (category == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category does not exist!");
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Category does not exist!");
         }
+    }
+
+    static void throwInternalServerErrorResponse() {
+        throw new ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
     }
 }
