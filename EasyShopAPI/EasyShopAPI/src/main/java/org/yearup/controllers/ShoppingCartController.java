@@ -9,6 +9,7 @@ import org.yearup.data.ProductDao;
 import org.yearup.data.ShoppingCartDao;
 import org.yearup.data.UserDao;
 import org.yearup.models.ShoppingCart;
+import org.yearup.models.ShoppingCartItem;
 import org.yearup.models.User;
 
 import java.security.Principal;
@@ -53,7 +54,7 @@ public class ShoppingCartController {
 
     @PostMapping("/products/{productId}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    public ShoppingCart addProductToCart(Principal principal, @PathVariable int productId) {
+    public void addProductToCart(Principal principal, @PathVariable int productId) {
 
         try {
 
@@ -62,7 +63,18 @@ public class ShoppingCartController {
             int userId = user.getId();
 
 
-            return null;
+            ShoppingCart cart = shoppingCartDao.getByUserId(userId);
+
+            if (cart.contains(productId)) {
+                ShoppingCartItem item = cart.get(productId);
+                item.setQuantity(item.getQuantity() + 1);
+
+                shoppingCartDao.updateProductQuantity(productId, userId, item.getQuantity());
+            } else {
+                shoppingCartDao.addProductToCart(userId, productId);
+            }
+
+            shoppingCartDao.addProductToCart(userId, productId);
 
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
@@ -93,6 +105,20 @@ public class ShoppingCartController {
     }
 
     // add a DELETE method to clear all products from the current users cart
+    @DeleteMapping("/products/{productId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public void removeProductFromCart(Principal principal, @PathVariable int productId) {
+        String userName = principal.getName();
+        User user = userDao.getByUserName(userName);
+        int userId = user.getId();
+
+        try {
+            shoppingCartDao.removeProductFromCart(productId, userId);
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+        }
+    }
 
     @DeleteMapping("/cart")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
