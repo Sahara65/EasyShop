@@ -5,11 +5,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.yearup.models.Category;
 import org.yearup.models.Product;
 import org.yearup.data.ProductDao;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+import static org.yearup.controllers.CategoriesController.throwInternalServerErrorResponse;
 
 @RestController
 @RequestMapping("products")
@@ -29,8 +32,10 @@ public class ProductsController {
                                 @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
                                 @RequestParam(name = "color", required = false) String color
     ) {
+
         try {
             return productDao.search(categoryId, minPrice, maxPrice, color);
+
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
         }
@@ -39,13 +44,14 @@ public class ProductsController {
     @GetMapping("{id}")
     @PreAuthorize("permitAll()")
     public Product getById(@PathVariable int id) {
+
         try {
             var product = productDao.getById(id);
 
-            if (product == null)
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            validateProduct(product);
 
             return product;
+
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
         }
@@ -54,8 +60,10 @@ public class ProductsController {
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Product addProduct(@RequestBody Product product) {
+
         try {
             return productDao.create(product);
+
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
         }
@@ -66,8 +74,9 @@ public class ProductsController {
     public void updateProduct(@PathVariable int id, @RequestBody Product product) {
         try {
             productDao.update(id, product);
+
         } catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+            throwInternalServerErrorResponse();
         }
     }
 
@@ -77,12 +86,18 @@ public class ProductsController {
         try {
             var product = productDao.getById(id);
 
-            if (product == null)
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            validateProduct(product);
 
             productDao.delete(id);
+
         } catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+            throwInternalServerErrorResponse();
+        }
+    }
+    private void validateProduct(Product product) {
+        if (product == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Product does not exist!");
         }
     }
 }
