@@ -20,8 +20,10 @@ public class Authority {
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         Authority authority = (Authority) o;
         return name.equals(authority.name);
     }

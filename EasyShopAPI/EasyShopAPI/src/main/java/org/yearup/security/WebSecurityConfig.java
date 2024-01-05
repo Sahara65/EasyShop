@@ -23,10 +23,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserModelDetailsService userModelDetailsService;
 
     public WebSecurityConfig(
+
             TokenProvider tokenProvider,
             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
             JwtAccessDeniedHandler jwtAccessDeniedHandler,
             UserModelDetailsService userModelDetailsService
+
     ) {
         this.tokenProvider = tokenProvider;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;

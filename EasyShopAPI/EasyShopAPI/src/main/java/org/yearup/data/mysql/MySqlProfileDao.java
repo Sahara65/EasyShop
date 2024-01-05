@@ -15,11 +15,15 @@ public class MySqlProfileDao extends MySqlDaoBase implements ProfileDao {
 
     @Override
     public Profile create(Profile profile) {
-        String sql = "INSERT INTO profiles (user_id, first_name, last_name, phone, email, address, city, state, zip) " +
-                     " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = ("""
+                INSERT INTO profiles (user_id, first_name, last_name, phone, email, address, city, state, zip)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """);
 
         try (Connection connection = getConnection()) {
+
             PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+
             ps.setInt(1, profile.getUserId());
             ps.setString(2, profile.getFirstName());
             ps.setString(3, profile.getLastName());
@@ -33,9 +37,9 @@ public class MySqlProfileDao extends MySqlDaoBase implements ProfileDao {
             ps.executeUpdate();
 
             return profile;
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
 }

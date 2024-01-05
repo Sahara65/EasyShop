@@ -63,8 +63,6 @@ public class MySqlShoppingCartDAO extends MySqlDaoBase implements ShoppingCartDa
             preparedStatement.setInt(2, productId);
             preparedStatement.executeUpdate();
 
-
-
             return shoppingCart;
 
         } catch (SQLException e) {
@@ -125,6 +123,7 @@ public class MySqlShoppingCartDAO extends MySqlDaoBase implements ShoppingCartDa
             throw new RuntimeException();
         }
     }
+
     protected static ShoppingCartItem mapRow(ResultSet row) throws SQLException {
         int productId = row.getInt("product_id");
         String name = row.getString("name");

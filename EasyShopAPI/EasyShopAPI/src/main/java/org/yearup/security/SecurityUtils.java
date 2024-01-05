@@ -22,16 +22,20 @@ public class SecurityUtils {
      * @return the login of the current user.
      */
     public static Optional<String> getCurrentUsername() {
+
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null) {
+
             LOG.debug("no authentication context found");
             return Optional.empty();
         }
 
         String username = null;
+
         if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
             username = springSecurityUser.getUsername();
+
         } else if (authentication.getPrincipal() instanceof String) {
             username = (String) authentication.getPrincipal();
         }

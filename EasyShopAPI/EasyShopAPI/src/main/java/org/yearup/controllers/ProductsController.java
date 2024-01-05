@@ -94,6 +94,7 @@ public class ProductsController {
             throwInternalServerErrorResponse();
         }
     }
+
     private void validateProduct(Product product) {
         if (product == null) {
             throw new ResponseStatusException(

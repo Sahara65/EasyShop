@@ -31,20 +31,14 @@ public class ShoppingCartController {
         this.userDao = userDao;
     }
 
-@GetMapping()
+    @GetMapping()
     public ShoppingCart getCart(Principal principal) {
 
-        try {
+        String userName = principal.getName();
+        User user = userDao.getByUserName(userName);
+        int userId = user.getId();
 
-            String userName = principal.getName();
-            User user = userDao.getByUserName(userName);
-            int userId = user.getId();
-
-            return shoppingCartDao.getByUserId(userId);
-
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
-        }
+        return shoppingCartDao.getByUserId(userId);
     }
 
     @PostMapping("/products/{productId}")
@@ -56,40 +50,29 @@ public class ShoppingCartController {
 
         ShoppingCart cart = shoppingCartDao.getByUserId(userId);
 
-        try {
+        if (cart.contains(productId)) {
+            ShoppingCartItem item = cart.get(productId);
+            item.setQuantity(item.getQuantity() + 1);
 
-            if (cart.contains(productId)) {
-                ShoppingCartItem item = cart.get(productId);
-                item.setQuantity(item.getQuantity() + 1);
+            shoppingCartDao.updateProductQuantity(productId, userId, item.getQuantity());
 
-                shoppingCartDao.updateProductQuantity(productId, userId, item.getQuantity());
-
-            } else {
-                shoppingCartDao.addProductToCart(userId, productId);
-            }
-
-        } catch (Exception e) {
-            throwInternalServerErrorResponse();
+        } else {
+            shoppingCartDao.addProductToCart(userId, productId);
         }
-        return shoppingCartDao.getByUserId(userId); //
+
+        return shoppingCartDao.getByUserId(userId);
     }
 
     @PutMapping("/products/{productId}")
     public ShoppingCart updateProductQuantity(Principal principal, @PathVariable int productId, @RequestParam int quantity) {
 
-        try {
-            String userName = principal.getName();
-            User user = userDao.getByUserName(userName);
-            int userId = user.getId();
+        String userName = principal.getName();
+        User user = userDao.getByUserName(userName);
+        int userId = user.getId();
 
-            shoppingCartDao.updateProductQuantity(productId, userId, quantity);
+        shoppingCartDao.updateProductQuantity(productId, userId, quantity);
 
-            return shoppingCartDao.getByUserId(userId);
-
-        } catch (Exception e) {
-            throwInternalServerErrorResponse();
-        }
-        return null;
+        return shoppingCartDao.getByUserId(userId);
     }
 
     @DeleteMapping("/products/{productId}")
@@ -104,12 +87,13 @@ public class ShoppingCartController {
 
     @DeleteMapping()
     public ShoppingCart clearCart(Principal principal) {
-            String userName = principal.getName();
-            User user = userDao.getByUserName(userName);
-            int userId = user.getId();
 
-            shoppingCartDao.clearCart(userId);
+        String userName = principal.getName();
+        User user = userDao.getByUserName(userName);
+        int userId = user.getId();
 
-            return shoppingCartDao.getByUserId(userId);
+        shoppingCartDao.clearCart(userId);
+
+        return shoppingCartDao.getByUserId(userId);
     }
 }
