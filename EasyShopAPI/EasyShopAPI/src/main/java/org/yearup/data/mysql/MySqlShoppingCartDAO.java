@@ -23,10 +23,6 @@ public class MySqlShoppingCartDAO extends MySqlDaoBase implements ShoppingCartDa
 
         ShoppingCart shoppingCart = new ShoppingCart();
 
-        ShoppingCartItem shoppingCartItem = new ShoppingCartItem();
-
-        Product product = new Product();
-
         try (Connection connection = getConnection()) {
 
             PreparedStatement preparedStatement = connection.prepareStatement("""
@@ -42,19 +38,7 @@ public class MySqlShoppingCartDAO extends MySqlDaoBase implements ShoppingCartDa
 
             while (resultSet.next()) {
 
-                product.setProductId(resultSet.getInt("product_id"));
-                product.setName(resultSet.getString("name"));
-                product.setPrice(resultSet.getBigDecimal("price"));
-                product.setCategoryId(resultSet.getInt("category_id"));
-                product.setDescription(resultSet.getString("description"));
-                product.setColor(resultSet.getString("color"));
-                product.setImageUrl(resultSet.getString("image_url"));
-                product.setStock(resultSet.getInt("stock"));
-                product.setFeatured(resultSet.getBoolean("featured"));
-
-                shoppingCartItem.setQuantity(resultSet.getInt("quantity"));
-                shoppingCartItem.setProduct(product);
-
+                ShoppingCartItem shoppingCartItem = mapRow(resultSet);
                 shoppingCart.add(shoppingCartItem);
             }
             return shoppingCart;
@@ -78,6 +62,8 @@ public class MySqlShoppingCartDAO extends MySqlDaoBase implements ShoppingCartDa
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, productId);
             preparedStatement.executeUpdate();
+
+
 
             return shoppingCart;
 
@@ -138,5 +124,23 @@ public class MySqlShoppingCartDAO extends MySqlDaoBase implements ShoppingCartDa
         } catch (SQLException e) {
             throw new RuntimeException();
         }
+    }
+    protected static ShoppingCartItem mapRow(ResultSet row) throws SQLException {
+        int productId = row.getInt("product_id");
+        String name = row.getString("name");
+        BigDecimal price = row.getBigDecimal("price");
+        int categoryId = row.getInt("category_id");
+        String description = row.getString("description");
+        String color = row.getString("color");
+        int stock = row.getInt("stock");
+        boolean isFeatured = row.getBoolean("featured");
+        String imageUrl = row.getString("image_url");
+
+        Product product = new Product(productId, name, price, categoryId, description, color, stock, isFeatured, imageUrl);
+        ShoppingCartItem shoppingCartItem = new ShoppingCartItem();
+        shoppingCartItem.setProduct(product);
+        shoppingCartItem.setQuantity(row.getInt("quantity"));
+
+        return shoppingCartItem;
     }
 }

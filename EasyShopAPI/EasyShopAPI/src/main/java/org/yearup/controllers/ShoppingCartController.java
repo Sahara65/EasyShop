@@ -24,13 +24,11 @@ public class ShoppingCartController {
 
     private final ShoppingCartDao shoppingCartDao;
     private final UserDao userDao;
-    private final ProductDao productDao;
 
     @Autowired
     public ShoppingCartController(ShoppingCartDao shoppingCartDao, UserDao userDao, ProductDao productDao) {
         this.shoppingCartDao = shoppingCartDao;
         this.userDao = userDao;
-        this.productDao = productDao;
     }
 
 @GetMapping()
@@ -73,7 +71,7 @@ public class ShoppingCartController {
         } catch (Exception e) {
             throwInternalServerErrorResponse();
         }
-        return shoppingCartDao.getByUserId(userId);
+        return shoppingCartDao.getByUserId(userId); //
     }
 
     @PutMapping("/products/{productId}")
@@ -89,8 +87,9 @@ public class ShoppingCartController {
             return shoppingCartDao.getByUserId(userId);
 
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+            throwInternalServerErrorResponse();
         }
+        return null;
     }
 
     @DeleteMapping("/products/{productId}")
@@ -100,26 +99,17 @@ public class ShoppingCartController {
         User user = userDao.getByUserName(userName);
         int userId = user.getId();
 
-        try {
-            shoppingCartDao.removeProductFromCart(productId, userId);
-
-        } catch (Exception e) {
-            throwInternalServerErrorResponse();
-        }
+        shoppingCartDao.removeProductFromCart(productId, userId);
     }
 
-    @DeleteMapping("/cart")
-    public void clearCart(Principal principal) {
-
-        try {
+    @DeleteMapping()
+    public ShoppingCart clearCart(Principal principal) {
             String userName = principal.getName();
             User user = userDao.getByUserName(userName);
             int userId = user.getId();
 
             shoppingCartDao.clearCart(userId);
 
-        } catch (Exception e) {
-            throwInternalServerErrorResponse();
-        }
+            return shoppingCartDao.getByUserId(userId);
     }
 }
