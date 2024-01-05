@@ -19,7 +19,7 @@ import static org.yearup.controllers.CategoriesController.throwInternalServerErr
 @RestController
 @RequestMapping("/cart")
 @CrossOrigin
-@PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+@PreAuthorize("isAuthenticated()")
 public class ShoppingCartController {
 
     private final ShoppingCartDao shoppingCartDao;
@@ -33,8 +33,7 @@ public class ShoppingCartController {
         this.productDao = productDao;
     }
 
-    @RequestMapping("/products")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+@GetMapping()
     public ShoppingCart getCart(Principal principal) {
 
         try {
@@ -51,16 +50,15 @@ public class ShoppingCartController {
     }
 
     @PostMapping("/products/{productId}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    public void addProductToCart(Principal principal, @PathVariable int productId) {
+    public ShoppingCart addProductToCart(Principal principal, @PathVariable int productId) {
+
+        String userName = principal.getName();
+        User user = userDao.getByUserName(userName);
+        int userId = user.getId();
+
+        ShoppingCart cart = shoppingCartDao.getByUserId(userId);
 
         try {
-
-            String userName = principal.getName();
-            User user = userDao.getByUserName(userName);
-            int userId = user.getId();
-
-            ShoppingCart cart = shoppingCartDao.getByUserId(userId);
 
             if (cart.contains(productId)) {
                 ShoppingCartItem item = cart.get(productId);
@@ -72,15 +70,13 @@ public class ShoppingCartController {
                 shoppingCartDao.addProductToCart(userId, productId);
             }
 
-            shoppingCartDao.addProductToCart(userId, productId);
-
         } catch (Exception e) {
             throwInternalServerErrorResponse();
         }
+        return shoppingCartDao.getByUserId(userId);
     }
 
     @PutMapping("/products/{productId}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ShoppingCart updateProductQuantity(Principal principal, @PathVariable int productId, @RequestParam int quantity) {
 
         try {
@@ -98,8 +94,8 @@ public class ShoppingCartController {
     }
 
     @DeleteMapping("/products/{productId}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public void removeProductFromCart(Principal principal, @PathVariable int productId) {
+
         String userName = principal.getName();
         User user = userDao.getByUserName(userName);
         int userId = user.getId();
@@ -113,7 +109,6 @@ public class ShoppingCartController {
     }
 
     @DeleteMapping("/cart")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public void clearCart(Principal principal) {
 
         try {

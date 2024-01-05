@@ -2,12 +2,11 @@ package org.yearup.data.mysql;
 
 import org.springframework.stereotype.Component;
 import org.yearup.data.ShoppingCartDao;
-import org.yearup.models.ShoppingCart;
-import org.yearup.models.ShoppingCartItem;
+import org.yearup.models.*;
 
 import javax.sql.DataSource;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,11 +20,54 @@ public class MySqlShoppingCartDAO extends MySqlDaoBase implements ShoppingCartDa
 
     @Override
     public ShoppingCart getByUserId(int userId) {
-        return null;
+
+        ShoppingCart shoppingCart = new ShoppingCart();
+
+        ShoppingCartItem shoppingCartItem = new ShoppingCartItem();
+
+        Product product = new Product();
+
+        try (Connection connection = getConnection()) {
+
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                    SELECT p.*, sc.quantity, sc.user_id
+                    FROM products AS p
+                    JOIN shopping_cart AS sc ON p.product_id = sc.product_id
+                    WHERE user_id = ?
+                    """);
+
+            preparedStatement.setInt(1, userId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                product.setProductId(resultSet.getInt("product_id"));
+                product.setName(resultSet.getString("name"));
+                product.setPrice(resultSet.getBigDecimal("price"));
+                product.setCategoryId(resultSet.getInt("category_id"));
+                product.setDescription(resultSet.getString("description"));
+                product.setColor(resultSet.getString("color"));
+                product.setImageUrl(resultSet.getString("image_url"));
+                product.setStock(resultSet.getInt("stock"));
+                product.setFeatured(resultSet.getBoolean("featured"));
+
+                shoppingCartItem.setQuantity(resultSet.getInt("quantity"));
+                shoppingCartItem.setProduct(product);
+
+                shoppingCart.add(shoppingCartItem);
+            }
+            return shoppingCart;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void addProductToCart(int userId, int productId) {
+    public ShoppingCart addProductToCart(int userId, int productId) {
+
+        ShoppingCart shoppingCart = getByUserId(userId);
 
         try (Connection connection = getConnection()) {
 
@@ -36,6 +78,8 @@ public class MySqlShoppingCartDAO extends MySqlDaoBase implements ShoppingCartDa
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, productId);
             preparedStatement.executeUpdate();
+
+            return shoppingCart;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -84,7 +128,8 @@ public class MySqlShoppingCartDAO extends MySqlDaoBase implements ShoppingCartDa
 
         try (Connection connection = getConnection()) {
 
-            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM shopping_cart WHERE user_id = ?",
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "DELETE FROM shopping_cart WHERE user_id = ?",
                     PreparedStatement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setInt(1, userId);
